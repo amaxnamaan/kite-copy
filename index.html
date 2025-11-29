@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kite - Zerodha's Trading Platform Replica</title>
+    <meta name="description"
+        content="A high-fidelity replica of Zerodha Kite trading platform featuring real-time market data simulation, advanced charting, and seamless order execution.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="assets/css/style.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="dark-theme">
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="container header-content">
+                <div class="logo-section">
+                    <div class="logo-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L2 19H22L12 2Z" fill="#FF5722" />
+                        </svg>
+                    </div>
+                    <span class="logo-text">Kite</span>
+                </div>
+
+                <nav class="main-nav">
+                    <a href="#" class="nav-item active" data-target="dashboard">Dashboard</a>
+                    <a href="#" class="nav-item" data-target="orders">Orders</a>
+                    <a href="#" class="nav-item" data-target="holdings">Holdings</a>
+                    <a href="#" class="nav-item" data-target="positions">Positions</a>
+                    <a href="#" class="nav-item" data-target="funds">Funds</a>
+                    <a href="#" class="nav-item" data-target="apps">Apps</a>
+                </nav>
+
+                <div class="user-profile">
+                    <span class="user-id">DV9283</span>
+                    <div class="avatar">AM</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Layout -->
+        <div class="main-layout">
+            <!-- Sidebar / Watchlist -->
+            <aside class="sidebar">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search eg: INFY, BSE, NIFTY" id="stock-search">
+                    <span class="search-count">50 / 50</span>
+                </div>
+
+                <div class="watchlist" id="watchlist-container">
+                    <!-- Watchlist items will be injected here via JS -->
+                </div>
+
+                <div class="watchlist-tabs">
+                    <button class="tab active">1</button>
+                    <button class="tab">2</button>
+                    <button class="tab">3</button>
+                    <button class="tab">4</button>
+                    <button class="tab">5</button>
+                    <button class="tab"><i class="fas fa-cog"></i></button>
+                </div>
+            </aside>
+
+            <!-- Content Area -->
+            <main class="content-area">
+                <!-- Dashboard View -->
+                <div id="view-dashboard" class="view-section active">
+                    <div class="market-status">
+                        <div class="index-card">
+                            <div class="index-name">NIFTY 50</div>
+                            <div class="index-value" id="nifty-value">19,425.35</div>
+                            <div class="index-change positive" id="nifty-change">+125.30 (0.65%)</div>
+                        </div>
+                        <div class="index-card">
+                            <div class="index-name">SENSEX</div>
+                            <div class="index-value" id="sensex-value">65,344.10</div>
+                            <div class="index-change positive" id="sensex-change">+350.15 (0.54%)</div>
+                        </div>
+                    </div>
+
+                    <div class="holdings-summary">
+                        <div class="section-header">
+                            <h2>Holdings (12)</h2>
+                            <a href="#" class="view-all">View all</a>
+                        </div>
+                        <div class="summary-grid">
+                            <div class="summary-item">
+                                <div class="label">Total investment</div>
+                                <div class="value">₹1,45,230.50</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="label">Current value</div>
+                                <div class="value">₹1,58,920.00</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="label">Day's P&L</div>
+                                <div class="value positive">+₹1,240.50 (+0.85%)</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="label">Total P&L</div>
+                                <div class="value positive">+₹13,689.50 (+9.43%)</div>
+                            </div>
+                        </div>
+
+                        <div class="chart-container-dashboard">
+                            <canvas id="portfolio-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stock Details View (Hidden by default) -->
+                <div id="view-stock-detail" class="view-section hidden">
+                    <div class="stock-header">
+                        <div class="stock-info-left">
+                            <h1 id="detail-symbol">RELIANCE</h1>
+                            <span class="exchange-badge">NSE</span>
+                        </div>
+                        <div class="stock-info-right">
+                            <div class="detail-price">
+                                <span class="price-lg" id="detail-price">2,456.00</span>
+                                <span class="change-lg positive" id="detail-change">+12.00 (0.49%)</span>
+                            </div>
+                            <div class="action-buttons">
+                                <button class="btn btn-buy" onclick="openBuyModal()">B</button>
+                                <button class="btn btn-sell" onclick="openSellModal()">S</button>
+                                <button class="btn btn-icon"><i class="fas fa-trash"></i></button>
+                                <button class="btn btn-icon"><i class="fas fa-ellipsis-v"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-area">
+                        <!-- Chart.js Canvas -->
+                        <canvas id="stock-chart"></canvas>
+                    </div>
+
+                    <div class="market-depth">
+                        <div class="depth-column bid">
+                            <div class="depth-header">
+                                <span>Bid</span>
+                                <span>Orders</span>
+                                <span>Qty</span>
+                            </div>
+                            <div class="depth-rows" id="bid-rows">
+                                <!-- Rows injected via JS -->
+                            </div>
+                        </div>
+                        <div class="depth-column offer">
+                            <div class="depth-header">
+                                <span>Offer</span>
+                                <span>Orders</span>
+                                <span>Qty</span>
+                            </div>
+                            <div class="depth-rows" id="offer-rows">
+                                <!-- Rows injected via JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orders View -->
+                <div id="view-orders" class="view-section hidden">
+                    <div class="section-header">
+                        <h2>Orders</h2>
+                    </div>
+                    <div class="orders-list">
+                        <table class="orders-table">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Type</th>
+                                    <th>Instrument</th>
+                                    <th>Product</th>
+                                    <th>Qty.</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orders-table-body">
+                                <!-- Orders injected here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Funds View -->
+                <div id="view-funds" class="view-section hidden">
+                    <div class="section-header">
+                        <h2>Funds</h2>
+                    </div>
+                    <div id="funds-content">
+                        <!-- Funds injected here -->
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Buy/Sell Modal -->
+        <div id="order-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header buy-mode" id="modal-header">
+                    <div class="modal-title">
+                        <span class="modal-action">BUY</span>
+                        <span class="modal-symbol" id="modal-symbol">RELIANCE</span>
+                        <span class="modal-exchange">NSE</span>
+                        <span class="modal-price" id="modal-live-price">2456.00</span>
+                    </div>
+                    <div class="toggle-switch">
+                        <label class="switch">
+                            <input type="checkbox" id="mode-toggle">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="tab-group">
+                        <label class="radio-tab">
+                            <input type="radio" name="product" checked>
+                            <span>Intraday <span>MIS</span></span>
+                        </label>
+                        <label class="radio-tab">
+                            <input type="radio" name="product">
+                            <span>Longterm <span>CNC</span></span>
+                        </label>
+                    </div>
+
+                    <div class="input-group-row">
+                        <div class="input-field">
+                            <label>Qty</label>
+                            <input type="number" value="1" id="order-qty">
+                        </div>
+                        <div class="input-field">
+                            <label>Price</label>
+                            <input type="number" value="2456.00" id="order-price">
+                        </div>
+                        <div class="input-field">
+                            <label>Trigger price</label>
+                            <input type="number" disabled placeholder="0">
+                        </div>
+                    </div>
+
+                    <div class="tab-group small">
+                        <label class="radio-tab">
+                            <input type="radio" name="order-type" checked>
+                            <span>Market</span>
+                        </label>
+                        <label class="radio-tab">
+                            <input type="radio" name="order-type">
+                            <span>Limit</span>
+                        </label>
+                        <label class="radio-tab">
+                            <input type="radio" name="order-type">
+                            <span>SL</span>
+                        </label>
+                        <label class="radio-tab">
+                            <input type="radio" name="order-type">
+                            <span>SL-M</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="margin-required">
+                        <span>Margin required</span>
+                        <span id="margin-req">₹485.00</span>
+                    </div>
+                    <div class="modal-actions">
+                        <button class="btn-text" onclick="closeModal()">Cancel</button>
+                        <button class="btn-submit" onclick="executeOrder()">Buy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Modal -->
+        <div id="payment-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header"
+                    style="background-color: var(--bg-secondary); border-bottom: 1px solid var(--border-color);">
+                    <div class="modal-title">
+                        <span style="font-weight: 600;">Add Funds</span>
+                    </div>
+                    <button class="btn-icon" onclick="closePaymentModal()"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-field" style="margin-bottom: 20px;">
+                        <label>Amount (₹)</label>
+                        <input type="number" id="payment-amount" value="10000" placeholder="Enter Amount">
+                    </div>
+
+                    <div class="payment-methods" style="margin-bottom: 20px;">
+                        <label
+                            style="display:block; color:var(--text-secondary); font-size:0.75rem; margin-bottom:10px;">Payment
+                            Method</label>
+                        <div class="method-options" style="display: flex; gap: 10px;">
+                            <div class="method-option active" onclick="selectPaymentMethod(this)"
+                                style="flex:1; padding:10px; border:1px solid var(--accent-blue); border-radius:4px; cursor:pointer; text-align:center; background:rgba(65, 132, 243, 0.1);">
+                                <i class="fas fa-mobile-alt" style="margin-bottom:5px; display:block;"></i> UPI
+                            </div>
+                            <div class="method-option" onclick="selectPaymentMethod(this)"
+                                style="flex:1; padding:10px; border:1px solid var(--border-color); border-radius:4px; cursor:pointer; text-align:center;">
+                                <i class="far fa-credit-card" style="margin-bottom:5px; display:block;"></i> Card
+                            </div>
+                            <div class="method-option" onclick="selectPaymentMethod(this)"
+                                style="flex:1; padding:10px; border:1px solid var(--border-color); border-radius:4px; cursor:pointer; text-align:center;">
+                                <i class="fas fa-university" style="margin-bottom:5px; display:block;"></i> NetBanking
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="payment-status" class="hidden" style="text-align: center; padding: 20px;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--accent-blue);"></i>
+                        <p style="margin-top: 10px; color: var(--text-secondary);">Processing Payment...</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-text" onclick="closePaymentModal()">Cancel</button>
+                    <button class="btn-submit" onclick="processPayment()">Add Funds</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Withdraw Modal -->
+        <div id="withdraw-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header"
+                    style="background-color: var(--bg-secondary); border-bottom: 1px solid var(--border-color);">
+                    <div class="modal-title">
+                        <span style="font-weight: 600;">Withdraw Funds</span>
+                    </div>
+                    <button class="btn-icon" onclick="closeWithdrawModal()"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-field" style="margin-bottom: 20px;">
+                        <label>Amount (₹)</label>
+                        <input type="number" id="withdraw-amount" placeholder="Enter Amount">
+                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 5px;">
+                            Available to withdraw: <span id="withdraw-available">0.00</span>
+                        </div>
+                    </div>
+
+                    <div class="bank-details"
+                        style="margin-bottom: 20px; padding: 15px; background: var(--bg-hover); border-radius: 4px;">
+                        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 5px;">Transfer to
+                            linked bank account</div>
+                        <div style="font-weight: 500;">HDFC BANK - XXXXXX1234</div>
+                    </div>
+
+                    <div id="withdraw-status" class="hidden" style="text-align: center; padding: 20px;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--accent-blue);"></i>
+                        <p style="margin-top: 10px; color: var(--text-secondary);">Processing Payout...</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-text" onclick="closeWithdrawModal()">Cancel</button>
+                    <button class="btn-submit" onclick="processWithdrawal()">Withdraw</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="toast hidden">Order Placed Successfully</div>
+    </div>
+
+    <script src="assets/js/app.js"></script>
+</body>
+
+</html>
